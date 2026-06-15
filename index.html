@@ -1,0 +1,1407 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Приключение Робби: Портал миров</title>
+  <style>
+    :root {
+      --bg-1: #081128;
+      --bg-2: #11234a;
+      --card: rgba(255,255,255,0.08);
+      --text: #e9f1ff;
+      --muted: #b9c7ea;
+      --accent: #ffd966;
+      --accent-2: #ffb347;
+      --line: rgba(255, 217, 102, 0.35);
+      --danger: #ff8f8f;
+      --success: #9ff1a7;
+      --shadow: 0 20px 60px rgba(0,0,0,0.45);
+      --placeholder-bg: linear-gradient(135deg, rgba(255,255,255,0.06), rgba(255,255,255,0.02));
+      --safe-width: 1380px;
+    }
+
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+
+    html, body {
+      width: 100%;
+      min-height: 100%;
+      overflow: hidden;
+    }
+
+    body {
+      font-family: "Segoe UI", "Poppins", Arial, sans-serif;
+      color: var(--text);
+      background:
+        radial-gradient(circle at top left, rgba(72,122,255,0.18), transparent 30%),
+        radial-gradient(circle at bottom right, rgba(255,182,72,0.12), transparent 28%),
+        linear-gradient(135deg, var(--bg-1), var(--bg-2));
+    }
+
+    .app {
+      width: 100%;
+      min-height: 100vh;
+      display: grid;
+      grid-template-rows: auto 1fr auto;
+      padding: 18px;
+      gap: 14px;
+    }
+
+    .topbar {
+      width: min(100%, var(--safe-width));
+      margin: 0 auto;
+      display: grid;
+      grid-template-columns: 1fr auto auto;
+      gap: 12px;
+      align-items: center;
+    }
+
+    .brand,
+    .meta,
+    .toolbar {
+      background: rgba(255,255,255,0.08);
+      backdrop-filter: blur(14px);
+      border: 1px solid var(--line);
+      border-radius: 999px;
+      box-shadow: var(--shadow);
+      min-height: 58px;
+      display: flex;
+      align-items: center;
+    }
+
+    .brand {
+      padding: 10px 18px;
+      gap: 14px;
+      min-width: 0;
+    }
+
+    .brand-badge {
+      width: 40px;
+      height: 40px;
+      border-radius: 50%;
+      display: grid;
+      place-items: center;
+      background: radial-gradient(circle at 35% 35%, #ffe89d, #ffbb43);
+      color: #142443;
+      font-weight: 800;
+      box-shadow: 0 0 18px rgba(255, 210, 86, 0.35);
+      flex: 0 0 auto;
+    }
+
+    .brand-title {
+      font-size: 1rem;
+      font-weight: 800;
+      color: var(--accent);
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+    }
+
+    .meta {
+      padding: 10px 18px;
+      gap: 16px;
+      font-weight: 700;
+      color: var(--accent);
+    }
+
+    .meta small {
+      color: var(--muted);
+      font-weight: 600;
+      display: block;
+      font-size: 0.72rem;
+      text-transform: uppercase;
+      letter-spacing: 0.08em;
+      margin-bottom: 2px;
+    }
+
+    .toolbar {
+      padding: 6px;
+      gap: 6px;
+    }
+
+    button, input, a {
+      font: inherit;
+    }
+
+    button {
+      border: none;
+      cursor: pointer;
+    }
+
+    .icon-btn,
+    .nav-btn,
+    .choice-chip,
+    .action-btn,
+    .link-btn {
+      transition: transform 0.18s ease, box-shadow 0.18s ease, background 0.18s ease, border-color 0.18s ease;
+    }
+
+    .icon-btn {
+      width: 44px;
+      height: 44px;
+      border-radius: 50%;
+      background: rgba(255,255,255,0.08);
+      color: var(--text);
+      border: 1px solid rgba(255,255,255,0.12);
+    }
+
+    .icon-btn:hover,
+    .nav-btn:hover,
+    .choice-chip:hover,
+    .action-btn:hover,
+    .link-btn:hover {
+      transform: translateY(-1px);
+      box-shadow: 0 10px 24px rgba(0,0,0,0.22);
+    }
+
+    .viewer {
+      width: min(100%, var(--safe-width));
+      margin: 0 auto;
+      min-height: 0;
+      display: grid;
+      grid-template-columns: 92px 1fr 92px;
+      align-items: stretch;
+      gap: 14px;
+    }
+
+    .nav-wrap {
+      display: grid;
+      place-items: center;
+    }
+
+    .nav-btn {
+      width: 72px;
+      height: 72px;
+      border-radius: 50%;
+      background: rgba(255,255,255,0.08);
+      border: 1px solid var(--line);
+      color: var(--accent);
+      font-size: 1.75rem;
+      box-shadow: var(--shadow);
+    }
+
+    .slide-shell {
+      min-height: 0;
+      position: relative;
+      display: flex;
+    }
+
+    .slide {
+      width: 100%;
+      height: calc(100vh - 170px);
+      max-height: 860px;
+      min-height: 580px;
+      background: rgba(255,255,255,0.07);
+      backdrop-filter: blur(18px);
+      border: 1px solid var(--line);
+      border-radius: 38px;
+      box-shadow: var(--shadow);
+      display: grid;
+      grid-template-columns: minmax(0, 1.18fr) minmax(340px, 0.82fr);
+      overflow: hidden;
+      position: relative;
+      animation: fadeSlide 0.35s ease;
+    }
+
+    .slide::before {
+      content: "";
+      position: absolute;
+      inset: 0;
+      background: radial-gradient(circle at 18% 16%, rgba(255,217,102,0.10), transparent 22%);
+      pointer-events: none;
+    }
+
+    .image-panel {
+      position: relative;
+      padding: 24px;
+      display: flex;
+      align-items: stretch;
+      justify-content: stretch;
+    }
+
+    .image-frame {
+      width: 100%;
+      height: 100%;
+      border-radius: 28px;
+      overflow: hidden;
+      border: 1px solid rgba(255,255,255,0.10);
+      background: #071226;
+      position: relative;
+      display: grid;
+      place-items: center;
+    }
+
+    .image-frame img {
+      width: 100%;
+      height: 100%;
+      object-fit: contain;
+      object-position: center;
+      display: block;
+      background: #071226;
+    }
+
+    .placeholder {
+      width: calc(100% - 30px);
+      height: calc(100% - 30px);
+      border-radius: 22px;
+      border: 2px dashed rgba(255, 217, 102, 0.45);
+      display: grid;
+      place-items: center;
+      text-align: center;
+      padding: 28px;
+      color: #d7e3ff;
+      background:
+        linear-gradient(135deg, rgba(255,255,255,0.04), rgba(255,255,255,0.01)),
+        repeating-linear-gradient(
+          135deg,
+          rgba(255,255,255,0.02) 0,
+          rgba(255,255,255,0.02) 16px,
+          transparent 16px,
+          transparent 32px
+        );
+    }
+
+    .placeholder strong {
+      display: block;
+      color: var(--accent);
+      font-size: 1.1rem;
+      margin-bottom: 10px;
+      letter-spacing: 0.04em;
+      text-transform: uppercase;
+    }
+
+    .placeholder span {
+      display: block;
+      color: var(--muted);
+      font-size: 0.98rem;
+      line-height: 1.55;
+      max-width: 480px;
+    }
+
+    .placeholder code {
+      display: inline-block;
+      margin-top: 10px;
+      padding: 6px 10px;
+      border-radius: 999px;
+      background: rgba(255,255,255,0.07);
+      border: 1px solid rgba(255,255,255,0.08);
+      color: #fff3c4;
+      font-size: 0.88rem;
+      font-family: Consolas, Monaco, monospace;
+    }
+
+    .content-panel {
+      padding: 30px 30px 26px 12px;
+      display: flex;
+      flex-direction: column;
+      min-width: 0;
+      position: relative;
+      z-index: 1;
+    }
+
+    .slide-kicker {
+      display: inline-flex;
+      align-self: flex-start;
+      gap: 8px;
+      align-items: center;
+      min-height: 38px;
+      padding: 8px 14px;
+      border-radius: 999px;
+      background: rgba(255, 217, 102, 0.12);
+      border: 1px solid rgba(255, 217, 102, 0.18);
+      color: var(--accent);
+      font-size: 0.85rem;
+      font-weight: 800;
+      letter-spacing: 0.08em;
+      text-transform: uppercase;
+      margin-bottom: 16px;
+    }
+
+    .slide-title {
+      font-size: clamp(2rem, 2.6vw, 3rem);
+      line-height: 1.04;
+      font-weight: 900;
+      color: #fff2b3;
+      text-shadow: 0 0 16px rgba(255, 212, 94, 0.18);
+      margin-bottom: 14px;
+    }
+
+    .slide-subtitle {
+      font-size: 1.05rem;
+      line-height: 1.55;
+      color: var(--text);
+      margin-bottom: 22px;
+      max-width: 34ch;
+    }
+
+    .content-block {
+      background: rgba(255,255,255,0.07);
+      border: 1px solid rgba(255,255,255,0.08);
+      border-radius: 22px;
+      padding: 18px;
+      margin-bottom: 14px;
+    }
+
+    .content-label {
+      font-size: 0.76rem;
+      text-transform: uppercase;
+      letter-spacing: 0.08em;
+      color: var(--accent);
+      font-weight: 800;
+      margin-bottom: 10px;
+    }
+
+    .content-text {
+      color: var(--muted);
+      font-size: 0.98rem;
+      line-height: 1.55;
+    }
+
+    .game-input,
+    .game-input-inline {
+      width: 100%;
+      border-radius: 18px;
+      border: 2px solid rgba(255,255,255,0.10);
+      background: rgba(7, 16, 38, 0.72);
+      color: var(--text);
+      padding: 14px 16px;
+      outline: none;
+      font-size: 1.05rem;
+      font-weight: 700;
+    }
+
+    .game-input:focus,
+    .game-input-inline:focus {
+      border-color: rgba(255, 217, 102, 0.45);
+      box-shadow: 0 0 0 4px rgba(255, 217, 102, 0.10);
+    }
+
+    .game-input-row {
+      display: grid;
+      grid-template-columns: 1fr auto;
+      gap: 10px;
+      margin-top: 10px;
+    }
+
+    .game-grid-two {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 10px;
+      margin-top: 10px;
+    }
+
+    .field-wrap small {
+      display: block;
+      color: var(--muted);
+      margin-bottom: 6px;
+      font-size: 0.86rem;
+    }
+
+    .action-btn,
+    .link-btn {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      min-height: 52px;
+      padding: 12px 18px;
+      border-radius: 18px;
+      font-weight: 800;
+      text-decoration: none;
+      white-space: nowrap;
+    }
+
+    .action-btn {
+      background: linear-gradient(135deg, var(--accent), var(--accent-2));
+      color: #18284a;
+      box-shadow: 0 8px 24px rgba(255, 191, 73, 0.22);
+    }
+
+    .link-btn {
+      background: rgba(255,255,255,0.08);
+      color: var(--text);
+      border: 1px solid rgba(255,255,255,0.12);
+    }
+
+    .message {
+      margin-top: 12px;
+      padding: 12px 14px;
+      border-radius: 16px;
+      font-size: 0.94rem;
+      line-height: 1.45;
+      display: none;
+    }
+
+    .message.show { display: block; }
+    .message.error {
+      background: rgba(255, 112, 112, 0.12);
+      border: 1px solid rgba(255, 112, 112, 0.28);
+      color: #ffd0d0;
+    }
+    .message.success {
+      background: rgba(108, 221, 120, 0.12);
+      border: 1px solid rgba(108, 221, 120, 0.28);
+      color: #d7ffd9;
+    }
+    .message.hint {
+      background: rgba(255,255,255,0.06);
+      border: 1px solid rgba(255,255,255,0.10);
+      color: var(--muted);
+      display: block;
+    }
+
+    .link-stack {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 10px;
+      margin-top: 12px;
+    }
+
+    .slide-footer {
+      margin-top: auto;
+      display: flex;
+      align-items: flex-end;
+      justify-content: space-between;
+      gap: 12px;
+      padding-top: 16px;
+    }
+
+    .hotkeys {
+      color: var(--muted);
+      font-size: 0.86rem;
+      line-height: 1.5;
+    }
+
+    .hotkeys strong {
+      color: var(--accent);
+    }
+
+    .progress-mini {
+      min-width: 86px;
+      text-align: right;
+      color: var(--accent);
+      font-weight: 900;
+      font-size: 1.05rem;
+    }
+
+    .progress-bar-wrap {
+      width: min(100%, var(--safe-width));
+      margin: 0 auto;
+      display: grid;
+      gap: 10px;
+    }
+
+    .progress-bar {
+      width: 100%;
+      height: 8px;
+      border-radius: 999px;
+      background: rgba(255,255,255,0.08);
+      overflow: hidden;
+      border: 1px solid rgba(255,255,255,0.08);
+    }
+
+    .progress-bar > span {
+      display: block;
+      height: 100%;
+      width: 0;
+      border-radius: inherit;
+      background: linear-gradient(90deg, var(--accent), var(--accent-2));
+      box-shadow: 0 0 18px rgba(255, 191, 73, 0.35);
+      transition: width 0.2s ease;
+    }
+
+    .dot-row {
+      display: none;
+    }
+
+    .choice-list {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 10px;
+      margin-top: 8px;
+    }
+
+    .choice-chip {
+      padding: 10px 14px;
+      border-radius: 999px;
+      background: rgba(255,255,255,0.06);
+      border: 1px solid rgba(255,255,255,0.10);
+      color: var(--text);
+      font-weight: 700;
+    }
+
+    .choice-chip.active {
+      background: rgba(255, 217, 102, 0.18);
+      border-color: rgba(255, 217, 102, 0.35);
+      color: #fff0ae;
+    }
+
+    .slide.worlds-slide {
+      grid-template-columns: 1fr;
+      padding: 24px;
+      gap: 18px;
+    }
+
+    .worlds-top {
+      display: flex;
+      flex-direction: column;
+      gap: 12px;
+      padding: 8px 4px 0 4px;
+    }
+
+    .worlds-subtitle {
+      font-size: 1.05rem;
+      line-height: 1.55;
+      color: var(--text);
+      max-width: 60ch;
+    }
+
+    .worlds-board {
+      display: grid;
+      grid-template-columns: repeat(5, minmax(0, 1fr));
+      gap: 14px;
+      min-height: 0;
+    }
+
+    .world-card {
+      background: rgba(255,255,255,0.06);
+      border: 1px solid rgba(255,255,255,0.10);
+      border-radius: 24px;
+      padding: 12px;
+      display: grid;
+      gap: 10px;
+      min-width: 0;
+    }
+
+    .world-card-image {
+      min-height: 280px;
+      border-radius: 18px;
+      overflow: hidden;
+      border: 1px solid rgba(255,255,255,0.10);
+      background: var(--placeholder-bg);
+      display: grid;
+      place-items: center;
+    }
+
+    .world-card-image img {
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+      display: block;
+    }
+
+    .world-placeholder {
+      width: calc(100% - 18px);
+      height: calc(100% - 18px);
+      border-radius: 16px;
+      border: 2px dashed rgba(255, 217, 102, 0.45);
+      display: grid;
+      place-items: center;
+      text-align: center;
+      padding: 16px;
+      color: var(--muted);
+      font-size: 0.9rem;
+      line-height: 1.45;
+      background:
+        linear-gradient(135deg, rgba(255,255,255,0.04), rgba(255,255,255,0.01)),
+        repeating-linear-gradient(
+          135deg,
+          rgba(255,255,255,0.02) 0,
+          rgba(255,255,255,0.02) 16px,
+          transparent 16px,
+          transparent 32px
+        );
+    }
+
+    .world-placeholder strong {
+      display: block;
+      color: var(--accent);
+      margin-bottom: 8px;
+      font-size: 0.84rem;
+      letter-spacing: 0.04em;
+      text-transform: uppercase;
+    }
+
+    .world-placeholder code {
+      display: inline-block;
+      margin-top: 8px;
+      padding: 6px 10px;
+      border-radius: 999px;
+      background: rgba(255,255,255,0.07);
+      border: 1px solid rgba(255,255,255,0.08);
+      color: #fff3c4;
+      font-size: 0.82rem;
+      font-family: Consolas, Monaco, monospace;
+    }
+
+    .world-card-title {
+      color: #fff2b3;
+      font-size: 1rem;
+      font-weight: 900;
+      line-height: 1.1;
+    }
+
+    .world-card-text {
+      color: var(--muted);
+      font-size: 0.9rem;
+      line-height: 1.45;
+    }
+
+    .help-panel {
+      position: fixed;
+      right: 18px;
+      bottom: 18px;
+      width: min(360px, calc(100vw - 36px));
+      padding: 18px;
+      background: rgba(10,18,42,0.92);
+      border: 1px solid rgba(255,217,102,0.24);
+      border-radius: 20px;
+      box-shadow: var(--shadow);
+      backdrop-filter: blur(16px);
+      display: none;
+      z-index: 50;
+    }
+
+    .help-panel.open { display: block; }
+
+    body.worlds-focus-mode .topbar {
+      display: none;
+    }
+
+    body.worlds-focus-mode .app {
+      grid-template-rows: 1fr auto;
+    }
+
+    body.worlds-focus-mode .viewer {
+      width: min(100%, 1600px);
+    }
+
+    body.worlds-focus-mode .slide.worlds-slide {
+      height: calc(100vh - 70px);
+      max-height: none;
+      padding: 18px;
+    }
+
+    body.worlds-focus-mode .worlds-top {
+      gap: 8px;
+      padding: 0;
+    }
+
+    body.worlds-focus-mode .worlds-subtitle {
+      max-width: none;
+    }
+
+    body.worlds-focus-mode .worlds-board {
+      grid-template-columns: repeat(5, minmax(0, 1fr));
+      gap: 16px;
+    }
+
+    body.worlds-focus-mode .world-card {
+      padding: 10px;
+      gap: 8px;
+    }
+
+    body.worlds-focus-mode .world-card-image {
+      min-height: 380px;
+    }
+
+    .help-panel h3 {
+      color: var(--accent);
+      font-size: 1rem;
+      margin-bottom: 10px;
+    }
+
+    .help-panel p,
+    .help-panel li {
+      color: var(--muted);
+      font-size: 0.94rem;
+      line-height: 1.5;
+    }
+
+    .help-panel ul {
+      padding-left: 18px;
+      display: grid;
+      gap: 6px;
+    }
+
+    @keyframes fadeSlide {
+      from { opacity: 0; transform: translateY(8px) scale(0.99); }
+      to { opacity: 1; transform: translateY(0) scale(1); }
+    }
+
+    @media (max-width: 1180px) {
+      .viewer { grid-template-columns: 72px 1fr 72px; }
+      .nav-btn { width: 58px; height: 58px; }
+      .slide {
+        grid-template-columns: 1fr;
+        height: calc(100vh - 180px);
+      }
+      .image-panel {
+        padding: 20px 20px 0 20px;
+        min-height: 42%;
+      }
+      .content-panel { padding: 18px 20px 22px 20px; }
+      .slide-subtitle { max-width: none; }
+      .worlds-board { grid-template-columns: repeat(3, minmax(0, 1fr)); }
+
+      body.worlds-focus-mode .viewer {
+        width: min(100%, 1500px);
+      }
+
+      body.worlds-focus-mode .slide.worlds-slide {
+        height: calc(100vh - 70px);
+      }
+
+      body.worlds-focus-mode .worlds-board {
+        grid-template-columns: repeat(3, minmax(0, 1fr));
+      }
+
+      body.worlds-focus-mode .world-card-image {
+        min-height: 300px;
+      }
+    }
+
+    @media (max-width: 860px) {
+      body { overflow: auto; }
+      .app {
+        min-height: auto;
+        padding: 14px;
+      }
+      .topbar { grid-template-columns: 1fr; }
+      .meta, .toolbar { justify-content: center; }
+      .viewer { grid-template-columns: 1fr; }
+      .nav-wrap { display: none; }
+      .slide { min-height: auto; height: auto; }
+      .image-panel { min-height: 320px; }
+      .game-grid-two { grid-template-columns: 1fr; }
+      .game-input-row { grid-template-columns: 1fr; }
+      .worlds-board { grid-template-columns: 1fr; }
+      .world-card-image { min-height: 220px; }
+
+      body.worlds-focus-mode .viewer {
+        grid-template-columns: 1fr;
+      }
+
+      body.worlds-focus-mode .worlds-board {
+        grid-template-columns: 1fr;
+      }
+
+      body.worlds-focus-mode .world-card-image {
+        min-height: 260px;
+      }
+    }
+  </style>
+</head>
+<body>
+  <div class="app">
+    <header class="topbar">
+      <div class="brand">
+        <div class="brand-badge">R</div>
+        <div class="brand-title">Приключение Робби: Портал миров</div>
+      </div>
+
+      <div class="meta">
+        <div>
+          <small>Экран</small>
+          <span id="slideCounter">1 / 14</span>
+        </div>
+        <div>
+          <small>Режим</small>
+          <span>Показ</span>
+        </div>
+      </div>
+
+      <div class="toolbar">
+        <button class="icon-btn" id="prevTopBtn" aria-label="Предыдущий слайд">←</button>
+        <button class="icon-btn" id="nextTopBtn" aria-label="Следующий слайд">→</button>
+        <button class="icon-btn" id="fullscreenBtn" aria-label="Полный экран">⛶</button>
+        <button class="icon-btn" id="helpBtn" aria-label="Подсказка">?</button>
+      </div>
+    </header>
+
+    <main class="viewer">
+      <div class="nav-wrap">
+        <button class="nav-btn" id="prevBtn" aria-label="Предыдущий слайд">‹</button>
+      </div>
+
+      <section class="slide-shell">
+        <div id="slideMount"></div>
+      </section>
+
+      <div class="nav-wrap">
+        <button class="nav-btn" id="nextBtn" aria-label="Следующий слайд">›</button>
+      </div>
+    </main>
+
+    <footer class="progress-bar-wrap">
+      <div class="progress-bar"><span id="progressBarFill"></span></div>
+      <div class="dot-row" id="dotRow"></div>
+    </footer>
+  </div>
+
+  <div class="help-panel" id="helpPanel">
+    <h3>Подсказка</h3>
+    <ul>
+      <li>Переключайте экраны стрелками на клавиатуре или кнопками.</li>
+      <li>На игровых этапах сначала введите ответ, потом переходите дальше.</li>
+      <li>Клавиша <strong>F</strong> — полноэкранный режим.</li>
+    </ul>
+  </div>
+
+  <script>
+    const STEP1_CODE = '811';
+    const WHEELS_CODE = '6';
+    const STEPS_CODE = '27';
+    const SCRATCH_CODE = '093';
+    const PDF_URL = 'new/variant1.pdf';
+    const SCRATCH_URL = 'https://scratch.mit.edu/projects/1298151479';
+
+    let audioContext = null;
+    let victoryMusicTimeouts = [];
+    let lastVictorySlidePlay = -1;
+
+    const slides = [
+      { number: 1, kicker: 'Начало истории', title: 'Появление Робби', subtitle: 'Робби появился! Впереди большое приключение.', image: 'slides/1.jpg', imageHint: 'ВСТАВЬТЕ ИЗОБРАЖЕНИЕ СЛАЙДА 1', imageText: 'Крупный Робби на переднем плане. За ним — полузакрытый портал, 5 секций пока неактивны.', imageCode: 'slides/01.jpg' },
+      { number: 2, kicker: 'Проблема', title: 'Что случилось с порталом', subtitle: 'О нет! Портал закрылся, и 5 миров пока недоступны. Нужно помочь Робби.', image: 'slides/2.jpg', imageHint: 'ВСТАВЬТЕ ИЗОБРАЖЕНИЕ СЛАЙДА 2', imageText: 'Робби на фоне портала. Сектора миров тусклые или заблокированные.', imageCode: 'slides/02.jpg' },
+      { number: 3, kicker: 'Миссия', title: 'Миссия детей', subtitle: 'Твоя миссия — пройти 3 шага и снова открыть портал.', image: 'slides/3.jpg', imageHint: 'ВСТАВЬТЕ ИЗОБРАЖЕНИЕ СЛАЙДА 3', imageText: 'Робби обращается к детям. Появляется схема из 3 шагов или панель запуска с тремя пустыми секциями.', imageCode: 'slides/03.jpg' },
+
+      { number: 4, kicker: 'Шаг 1', title: 'Механический модуль', subtitle: 'Теперь нужно собрать механический модуль и помочь порталу ожить.', image: 'slides/6.jpg', imageHint: 'ВСТАВЬТЕ ИЗОБРАЖЕНИЕ СЛАЙДА 6', imageText: 'Схема LEGO-робота, детали и недостающий модуль в панели запуска.', imageCode: 'slides/06.jpg' },
+      { number: 5, kicker: 'Сборка', title: 'Сборка робота', subtitle: 'Открой инструкцию, собери робота и введи два ответа.', image: 'slides/7.jpg', imageHint: 'ВСТАВЬТЕ ИЗОБРАЖЕНИЕ СЛАЙДА 7', imageText: 'Руки детей, LEGO-робот в сборке, акценты на колёсах и инструкции.', imageCode: 'slides/07.jpg', gate: 'step2', interaction: 'step2' },
+      { number: 6, kicker: 'Результат шага 1', title: 'Первый контур активирован', subtitle: 'Отлично! Первый контур активирован.', image: 'slides/8.jpg', imageHint: 'ВСТАВЬТЕ ИЗОБРАЖЕНИЕ СЛАЙДА 8', imageText: 'Собранный робот, активный контур и сияющий портал.', imageCode: 'slides/08.jpg' },
+
+      { number: 7, kicker: 'Шаг 2', title: 'Роботы-наблюдатели', subtitle: 'Найди всех роботов-наблюдателей, посчитай их и введи шифр.', image: 'slides/4.jpg', imageHint: 'ВСТАВЬТЕ ИЗОБРАЖЕНИЕ СЛАЙДА 4', imageText: 'Дети ищут маленьких роботов в аудитории. Робби наблюдает и ждёт результат.', imageCode: 'slides/04.jpg', gate: 'step1', interaction: 'step1' },
+      { number: 8, kicker: 'Результат шага 2', title: 'Второй контур активирован', subtitle: 'Получилось! Второй контур загорелся.', image: 'slides/5.jpg', imageHint: 'ВСТАВЬТЕ ИЗОБРАЖЕНИЕ СЛАЙДА 5', imageText: 'Панель с введённым числом, следующий загоревшийся сектор системы, реакция Робби.', imageCode: 'slides/05.jpg' },
+
+      { number: 9, kicker: 'Шаг 3', title: 'Цифровой маршрут', subtitle: 'Открой проект в Scratch, доделай его и введи код.', image: 'slides/9.jpg', imageHint: 'ВСТАВЬТЕ ИЗОБРАЖЕНИЕ СЛАЙДА 9', imageText: 'Экран с лабиринтом, робот внутри маршрута и ощущение цифрового испытания.', imageCode: 'slides/09.jpg', gate: 'step3', interaction: 'step3' },
+      { number: 10, kicker: 'Финальный ключ', title: 'Код найден', subtitle: 'Код найден! До открытия портала остался один шаг.', image: 'slides/10.jpg', imageHint: 'ВСТАВЬТЕ ИЗОБРАЖЕНИЕ СЛАЙДА 10', imageText: 'Робот проходит маршрут, на экране появляется код, все 3 контура активны.', imageCode: 'slides/10.jpg' },
+      { number: 11, kicker: 'Пауза перед финалом', title: 'Портал готов, но ждёт свидетелей', subtitle: 'Введи время, когда вы сделали фото, и приготовься к финалу.', image: 'slides/11.jpg', imageHint: 'ВСТАВЬТЕ ИЗОБРАЖЕНИЕ СЛАЙДА 11', imageText: 'Дети у почти открытого портала. Всё пространство наполнено ожиданием финального запуска.', imageCode: 'slides/11.jpg', gate: 'photoTime', interaction: 'photoTime' },
+      { number: 12, kicker: 'Кульминация', title: 'Открытие портала', subtitle: 'Портал открыт! Впереди 5 миров летнего клуба приключений.', image: 'slides/12.jpg', imageHint: 'ВСТАВЬТЕ ИЗОБРАЖЕНИЕ СЛАЙДА 12', imageText: 'Дети, родители и Робби у раскрывающегося портала.', imageCode: 'slides/12.jpg' },
+      {
+        number: 13,
+        kicker: '5 миров открыты',
+        title: 'Портал миров открыт',
+        subtitle: 'Перед тобой 5 миров. Смотри, какой из них зовёт тебя сильнее всего.',
+        layout: 'worldsGrid',
+        worlds: [
+          { title: 'Башня ловушек', text: 'Уровни, ловушки и путь наверх.', image: 'slides/13.jpg', imageHint: 'МИР 1', imageCode: 'slides/13.jpg' },
+          { title: 'Мастерская будущего', text: 'Артефакты, детали и изобретения.', image: 'slides/14.jpg', imageHint: 'МИР 2', imageCode: 'slides/14.jpg' },
+          { title: 'Карта миров', text: 'Своя база, карта и целый мир.', image: 'slides/15.jpg', imageHint: 'МИР 3', imageCode: 'slides/15.jpg' },
+          { title: 'Станция ИИ', text: 'Идеи, персонажи и умные технологии.', image: 'slides/16.jpg', imageHint: 'МИР 4', imageCode: 'slides/16.jpg' },
+          { title: 'Секретная миссия', text: 'Тайные задания, маршруты и коды.', image: 'slides/17.jpg', imageHint: 'МИР 5', imageCode: 'slides/17.jpg' }
+        ]
+      },
+      { number: 14, kicker: 'Финал', title: 'Куда отправимся летом?', subtitle: 'Выбери мир, в который хочется отправиться больше всего.', image: 'slides/18.jpg', imageHint: 'ВСТАВЬТЕ ИЗОБРАЖЕНИЕ ФИНАЛЬНОГО СЛАЙДА', imageText: 'Робби перед детьми, за ним — 5 открытых миров.', imageCode: 'slides/18.jpg', choices: ['Башня ловушек', 'Мастерская будущего', 'Карта миров', 'Станция ИИ', 'Секретная миссия'] }
+    ];
+
+    let currentIndex = 0;
+    let selectedChoice = '';
+
+    const gameState = {
+      step1: { value: '', unlocked: false },
+      step2: { wheels: '', steps: '', unlocked: false },
+      step3: { value: '', unlocked: false },
+      photoTime: { value: '' }
+    };
+
+    const slideMount = document.getElementById('slideMount');
+    const slideCounter = document.getElementById('slideCounter');
+    const progressBarFill = document.getElementById('progressBarFill');
+    const dotRow = document.getElementById('dotRow');
+    const helpPanel = document.getElementById('helpPanel');
+
+    function buildDots() {
+      dotRow.innerHTML = '';
+    }
+
+    function buildPlaceholder(slide) {
+      return `
+        <div class="placeholder">
+          <div>
+            <strong>${slide.imageHint}</strong>
+            <span>${slide.imageText}</span>
+            <code>${slide.imageCode}</code>
+          </div>
+        </div>
+      `;
+    }
+
+    function buildChoices(slide) {
+      if (!slide.choices) return '';
+      return `
+        <div class="content-block">
+          <div class="content-label">Твой выбор</div>
+          <div class="choice-list">
+            ${slide.choices.map(choice => `
+              <button class="choice-chip ${selectedChoice === choice ? 'active' : ''}" type="button" data-choice="${choice}">${choice}</button>
+            `).join('')}
+          </div>
+        </div>
+      `;
+    }
+
+    function buildWorldsGrid(slide) {
+      if (slide.layout !== 'worldsGrid') return '';
+      return `
+        <article class="slide worlds-slide">
+          <div class="worlds-top">
+            <div class="slide-kicker">${slide.kicker}</div>
+            <h1 class="slide-title">${slide.title}</h1>
+            <p class="worlds-subtitle">${slide.subtitle}</p>
+          </div>
+
+          <div class="worlds-board">
+            ${slide.worlds.map(world => `
+              <div class="world-card">
+                <div class="world-card-image">
+                  ${world.image
+                    ? `<img src="${world.image}" alt="${world.title}">`
+                    : `<div class="world-placeholder"><div><strong>${world.imageHint}</strong>${world.title}<br><code>${world.imageCode}</code></div></div>`}
+                </div>
+                <div class="world-card-title">${world.title}</div>
+                <div class="world-card-text">${world.text}</div>
+              </div>
+            `).join('')}
+          </div>
+
+          <div class="slide-footer">
+            <div class="hotkeys"><strong>Управление:</strong> ← → / пробел / F = полный экран</div>
+            <div class="progress-mini">${slide.number} / ${slides.length}</div>
+          </div>
+        </article>
+      `;
+    }
+
+    function buildInteraction(slide) {
+      if (slide.interaction === 'step1') {
+        const done = gameState.step1.unlocked;
+        return `
+          <div class="content-block">
+            <div class="content-label">Введи шифр</div>
+            <div class="content-text">Посчитайте роботов и введите число.</div>
+            <div class="game-input-row">
+              <input class="game-input" id="step1Input" inputmode="numeric" maxlength="6" placeholder="Введите число" value="${gameState.step1.value}">
+              <button class="action-btn" type="button" id="step1CheckBtn">Проверить</button>
+            </div>
+            <div class="message hint">После правильного ответа можно перейти дальше.</div>
+            <div class="message ${done ? 'success show' : 'error'}" id="step1Message">${done ? 'Шифр принят. Контур открыт.' : ''}</div>
+          </div>
+        `;
+      }
+
+      if (slide.interaction === 'step2') {
+        const done = gameState.step2.unlocked;
+        return `
+          <div class="content-block">
+            <div class="content-label">Ответы по сборке</div>
+            <div class="content-text">Сначала откройте инструкцию, потом введите оба ответа.</div>
+            <div class="link-stack">
+              <a class="link-btn" href="${PDF_URL}" target="_blank" rel="noopener">Открыть PDF</a>
+            </div>
+            <div class="game-grid-two">
+              <label class="field-wrap">
+                <small>Сколько колёс?</small>
+                <input class="game-input-inline" id="wheelsInput" inputmode="numeric" maxlength="3" placeholder="Колёса" value="${gameState.step2.wheels}">
+              </label>
+              <label class="field-wrap">
+                <small>Сколько шагов?</small>
+                <input class="game-input-inline" id="stepsInput" inputmode="numeric" maxlength="3" placeholder="Шаги" value="${gameState.step2.steps}">
+              </label>
+            </div>
+            <div class="game-input-row">
+              <div></div>
+              <button class="action-btn" type="button" id="step2CheckBtn">Проверить</button>
+            </div>
+            <div class="message ${done ? 'success show' : 'error'}" id="step2Message">${done ? 'Механический модуль принят. Можно идти дальше.' : ''}</div>
+          </div>
+        `;
+      }
+
+      if (slide.interaction === 'step3') {
+        const done = gameState.step3.unlocked;
+        return `
+          <div class="content-block">
+            <div class="content-label">Код из Scratch</div>
+            <div class="content-text">Откройте проект, завершите задание и введите код.</div>
+            <div class="link-stack">
+              <a class="link-btn" href="${SCRATCH_URL}" target="_blank" rel="noopener">Открыть Scratch</a>
+            </div>
+            <div class="game-input-row">
+              <input class="game-input" id="step3Input" inputmode="numeric" maxlength="3" placeholder="Код" value="${gameState.step3.value}">
+              <button class="action-btn" type="button" id="step3CheckBtn">Проверить</button>
+            </div>
+            <div class="message ${done ? 'success show' : 'error'}" id="step3Message">${done ? 'Код принят. Последний контур открыт.' : ''}</div>
+          </div>
+        `;
+      }
+
+      if (slide.interaction === 'photoTime') {
+        const done = (gameState.photoTime.value || '').trim().length > 0;
+        return `
+          <div class="content-block">
+            <div class="content-label">Время фото</div>
+            <div class="content-text">Введи время, когда вы сделали фото.</div>
+            <div class="game-input-row">
+              <input class="game-input" id="photoTimeInput" placeholder="Например: 12:30" value="${gameState.photoTime.value}">
+              <button class="action-btn" type="button" id="photoTimeCheckBtn">Готово</button>
+            </div>
+            <div class="message ${done ? 'success show' : 'error'}" id="photoTimeMessage">${done ? 'Отлично! Можно идти дальше.' : ''}</div>
+          </div>
+        `;
+      }
+
+      return '';
+    }
+
+    function buildFooterText(slide) {
+      if (slide.gate) return '<strong>Важно:</strong> сначала выполните задание на этом экране.';
+      return '<strong>Управление:</strong> ← → / пробел / F = полный экран';
+    }
+
+    function renderSlide() {
+      const slide = slides[currentIndex];
+      document.body.classList.toggle('worlds-focus-mode', slide.layout === 'worldsGrid');
+      const progress = ((currentIndex + 1) / slides.length) * 100;
+
+      if (slide.layout === 'worldsGrid') {
+        slideMount.innerHTML = buildWorldsGrid(slide);
+      } else {
+        slideMount.innerHTML = `
+          <article class="slide">
+            <div class="image-panel">
+              <div class="image-frame">
+                ${slide.image
+                  ? `<img src="${slide.image}" alt="${slide.title}">`
+                  : buildPlaceholder(slide)}
+              </div>
+            </div>
+
+            <div class="content-panel">
+              <div class="slide-kicker">${slide.kicker}</div>
+              <h1 class="slide-title">${slide.title}</h1>
+              <p class="slide-subtitle">${slide.subtitle}</p>
+
+              ${buildInteraction(slide)}
+              ${buildChoices(slide)}
+
+              <div class="slide-footer">
+                <div class="hotkeys">${buildFooterText(slide)}</div>
+                <div class="progress-mini">${slide.number} / ${slides.length}</div>
+              </div>
+            </div>
+          </article>
+        `;
+      }
+
+      slideCounter.textContent = `${slide.number} / ${slides.length}`;
+      progressBarFill.style.width = `${progress}%`;
+      attachDynamicHandlers(slide);
+    }
+
+    function setMessage(id, text, type) {
+      const el = document.getElementById(id);
+      if (!el) return;
+      el.className = `message ${type} show`;
+      el.textContent = text;
+    }
+
+    function attachDynamicHandlers(slide) {
+      document.querySelectorAll('[data-choice]').forEach(btn => {
+        btn.addEventListener('click', () => {
+          selectedChoice = btn.dataset.choice;
+          renderSlide();
+        });
+      });
+
+      if (slide.interaction === 'step1') {
+        const input = document.getElementById('step1Input');
+        const btn = document.getElementById('step1CheckBtn');
+        input?.addEventListener('input', () => {
+          input.value = input.value.replace(/\D/g, '').slice(0, 6);
+          gameState.step1.value = input.value;
+        });
+        const check = () => {
+          const value = (input?.value || '').trim();
+          gameState.step1.value = value;
+          if (value === STEP1_CODE) {
+            gameState.step1.unlocked = true;
+            setMessage('step1Message', 'Шифр принят. Контур открыт.', 'success');
+          } else {
+            gameState.step1.unlocked = false;
+            setMessage('step1Message', 'Пока не совпало. Проверьте число роботов и попробуйте ещё раз.', 'error');
+          }
+        };
+        btn?.addEventListener('click', check);
+        input?.addEventListener('keydown', (e) => { if (e.key === 'Enter') check(); });
+      }
+
+      if (slide.interaction === 'step2') {
+        const wheelsInput = document.getElementById('wheelsInput');
+        const stepsInput = document.getElementById('stepsInput');
+        const btn = document.getElementById('step2CheckBtn');
+        [wheelsInput, stepsInput].forEach((input) => {
+          input?.addEventListener('input', () => {
+            input.value = input.value.replace(/\D/g, '').slice(0, 3);
+            gameState.step2.wheels = wheelsInput?.value || '';
+            gameState.step2.steps = stepsInput?.value || '';
+          });
+        });
+        const check = () => {
+          const wheels = (wheelsInput?.value || '').trim();
+          const steps = (stepsInput?.value || '').trim();
+          gameState.step2.wheels = wheels;
+          gameState.step2.steps = steps;
+          if (wheels === WHEELS_CODE && steps === STEPS_CODE) {
+            gameState.step2.unlocked = true;
+            setMessage('step2Message', 'Механический модуль принят. Можно идти дальше.', 'success');
+          } else {
+            gameState.step2.unlocked = false;
+            setMessage('step2Message', 'Один из ответов неверный. Проверьте колёса и шаги сборки.', 'error');
+          }
+        };
+        btn?.addEventListener('click', check);
+        wheelsInput?.addEventListener('keydown', (e) => { if (e.key === 'Enter') check(); });
+        stepsInput?.addEventListener('keydown', (e) => { if (e.key === 'Enter') check(); });
+      }
+
+      if (slide.interaction === 'step3') {
+        const input = document.getElementById('step3Input');
+        const btn = document.getElementById('step3CheckBtn');
+        input?.addEventListener('input', () => {
+          input.value = input.value.replace(/\D/g, '').slice(0, 3);
+          gameState.step3.value = input.value;
+        });
+        const check = () => {
+          const value = (input?.value || '').trim();
+          gameState.step3.value = value;
+          if (value === SCRATCH_CODE) {
+            gameState.step3.unlocked = true;
+            setMessage('step3Message', 'Код принят. Последний контур открыт.', 'success');
+          } else {
+            gameState.step3.unlocked = false;
+            setMessage('step3Message', 'Код неверный. Завершите проект в Scratch и попробуйте снова.', 'error');
+          }
+        };
+        btn?.addEventListener('click', check);
+        input?.addEventListener('keydown', (e) => { if (e.key === 'Enter') check(); });
+      }
+
+      if (slide.interaction === 'photoTime') {
+        const input = document.getElementById('photoTimeInput');
+        const btn = document.getElementById('photoTimeCheckBtn');
+        const check = () => {
+          const value = (input?.value || '').trim();
+          gameState.photoTime.value = value;
+          if (value) {
+            setMessage('photoTimeMessage', 'Отлично! Можно идти дальше.', 'success');
+          } else {
+            setMessage('photoTimeMessage', 'Сначала введи время в поле.', 'error');
+          }
+        };
+        input?.addEventListener('input', () => {
+          gameState.photoTime.value = input.value;
+        });
+        btn?.addEventListener('click', check);
+        input?.addEventListener('keydown', (e) => { if (e.key === 'Enter') check(); });
+      }
+    }
+
+    function isGateUnlocked(slide) {
+      if (!slide.gate) return true;
+      if (slide.gate === 'step1') return gameState.step1.unlocked;
+      if (slide.gate === 'step2') return gameState.step2.unlocked;
+      if (slide.gate === 'step3') return gameState.step3.unlocked;
+      if (slide.gate === 'photoTime') return (gameState.photoTime.value || '').trim().length > 0;
+      return true;
+    }
+
+    function tryLeaveCurrent(targetIndex) {
+      const currentSlide = slides[currentIndex];
+      if (targetIndex <= currentIndex) return true;
+      if (isGateUnlocked(currentSlide)) return true;
+
+      let message = 'Сначала выполните задание на этом экране.';
+      if (currentSlide.gate === 'step1') message = 'Сначала введи правильный шифр на этом шаге.';
+      if (currentSlide.gate === 'step2') message = 'Сначала введи ответы по сборке робота.';
+      if (currentSlide.gate === 'step3') message = 'Сначала введи код из Scratch.';
+      if (currentSlide.gate === 'photoTime') message = 'Сначала введи время фото.';
+
+      if (currentSlide.gate === 'step1') setMessage('step1Message', message, 'error');
+      if (currentSlide.gate === 'step2') setMessage('step2Message', message, 'error');
+      if (currentSlide.gate === 'step3') setMessage('step3Message', message, 'error');
+      if (currentSlide.gate === 'photoTime') setMessage('photoTimeMessage', message, 'error');
+      return false;
+    }
+
+    function clearVictoryMusicSchedule() {
+      victoryMusicTimeouts.forEach(id => clearTimeout(id));
+      victoryMusicTimeouts = [];
+    }
+
+    function playVictoryMusic() {
+      try {
+        const AudioCtx = window.AudioContext || window.webkitAudioContext;
+        if (!AudioCtx) return;
+
+        clearVictoryMusicSchedule();
+
+        if (!audioContext) {
+          audioContext = new AudioCtx();
+        }
+
+        const startPlayback = () => {
+          const notes = [
+            { freq: 523.25, time: 0.00, dur: 0.16 },
+            { freq: 659.25, time: 0.18, dur: 0.16 },
+            { freq: 783.99, time: 0.36, dur: 0.18 },
+            { freq: 1046.50, time: 0.58, dur: 0.34 },
+            { freq: 783.99, time: 0.98, dur: 0.18 },
+            { freq: 1046.50, time: 1.18, dur: 0.44 },
+          ];
+
+          const now = audioContext.currentTime + 0.03;
+
+          notes.forEach((note, idx) => {
+            const osc = audioContext.createOscillator();
+            const gain = audioContext.createGain();
+            const toneGain = audioContext.createGain();
+
+            osc.type = idx < 3 ? 'triangle' : 'sawtooth';
+            osc.frequency.setValueAtTime(note.freq, now + note.time);
+
+            toneGain.gain.setValueAtTime(0.0001, now + note.time);
+            toneGain.gain.exponentialRampToValueAtTime(0.22, now + note.time + 0.02);
+            toneGain.gain.exponentialRampToValueAtTime(0.0001, now + note.time + note.dur);
+
+            gain.gain.setValueAtTime(0.0001, now + note.time);
+            gain.gain.exponentialRampToValueAtTime(0.18, now + note.time + 0.02);
+            gain.gain.exponentialRampToValueAtTime(0.0001, now + note.time + note.dur + 0.03);
+
+            osc.connect(toneGain);
+            toneGain.connect(gain);
+            gain.connect(audioContext.destination);
+
+            osc.start(now + note.time);
+            osc.stop(now + note.time + note.dur + 0.06);
+          });
+
+          const chordTime = now + 1.70;
+          [523.25, 659.25, 783.99].forEach((freq) => {
+            const osc = audioContext.createOscillator();
+            const gain = audioContext.createGain();
+            osc.type = 'triangle';
+            osc.frequency.setValueAtTime(freq, chordTime);
+            gain.gain.setValueAtTime(0.0001, chordTime);
+            gain.gain.exponentialRampToValueAtTime(0.12, chordTime + 0.03);
+            gain.gain.exponentialRampToValueAtTime(0.0001, chordTime + 0.62);
+            osc.connect(gain);
+            gain.connect(audioContext.destination);
+            osc.start(chordTime);
+            osc.stop(chordTime + 0.68);
+          });
+        };
+
+        if (audioContext.state === 'suspended') {
+          audioContext.resume().then(startPlayback).catch(() => {});
+        } else {
+          startPlayback();
+        }
+      } catch (error) {
+      }
+    }
+
+    function handleSlideAudio(prevIndex, nextIndex) {
+      const nextSlide = slides[nextIndex];
+      if (!nextSlide) return;
+      if (nextSlide.number === 12 && prevIndex !== nextIndex && lastVictorySlidePlay !== nextIndex) {
+        lastVictorySlidePlay = nextIndex;
+        playVictoryMusic();
+      }
+      if (nextSlide.number !== 12) {
+        lastVictorySlidePlay = -1;
+      }
+    }
+
+    function goToSlide(index) {
+      const targetIndex = Math.max(0, Math.min(index, slides.length - 1));
+      if (!tryLeaveCurrent(targetIndex)) return;
+      const prevIndex = currentIndex;
+      currentIndex = targetIndex;
+      renderSlide();
+      handleSlideAudio(prevIndex, currentIndex);
+    }
+
+    function nextSlide() {
+      const nextIndex = (currentIndex + 1) % slides.length;
+      if (nextIndex === 0 && currentIndex === slides.length - 1) {
+        const prevIndex = currentIndex;
+        currentIndex = 0;
+        renderSlide();
+        handleSlideAudio(prevIndex, currentIndex);
+        return;
+      }
+      goToSlide(nextIndex);
+    }
+
+    function prevSlide() {
+      const prevIndex = currentIndex;
+      currentIndex = (currentIndex - 1 + slides.length) % slides.length;
+      renderSlide();
+      handleSlideAudio(prevIndex, currentIndex);
+    }
+
+    function toggleFullscreen() {
+      if (!document.fullscreenElement) {
+        document.documentElement.requestFullscreen?.();
+      } else {
+        document.exitFullscreen?.();
+      }
+    }
+
+    document.getElementById('nextBtn').addEventListener('click', nextSlide);
+    document.getElementById('prevBtn').addEventListener('click', prevSlide);
+    document.getElementById('nextTopBtn').addEventListener('click', nextSlide);
+    document.getElementById('prevTopBtn').addEventListener('click', prevSlide);
+    document.getElementById('fullscreenBtn').addEventListener('click', toggleFullscreen);
+    document.getElementById('helpBtn').addEventListener('click', () => {
+      helpPanel.classList.toggle('open');
+    });
+
+    document.addEventListener('keydown', (event) => {
+      if (event.key === 'ArrowRight' || event.key === 'PageDown' || event.key === ' ') {
+        const tag = document.activeElement?.tagName?.toLowerCase();
+        if (tag !== 'input' && tag !== 'textarea') {
+          event.preventDefault();
+          nextSlide();
+        }
+      }
+      if (event.key === 'ArrowLeft' || event.key === 'PageUp') {
+        event.preventDefault();
+        prevSlide();
+      }
+      if (event.key.toLowerCase() === 'f') {
+        toggleFullscreen();
+      }
+      if (event.key === 'Escape') {
+        helpPanel.classList.remove('open');
+      }
+    });
+
+    let touchStartX = 0;
+    let touchEndX = 0;
+
+    document.addEventListener('touchstart', (event) => {
+      touchStartX = event.changedTouches[0].screenX;
+    }, { passive: true });
+
+    document.addEventListener('touchend', (event) => {
+      touchEndX = event.changedTouches[0].screenX;
+      const diff = touchEndX - touchStartX;
+      if (Math.abs(diff) < 50) return;
+      if (diff < 0) nextSlide();
+      else prevSlide();
+    }, { passive: true });
+
+    buildDots();
+    renderSlide();
+  </script>
+</body>
+</html>
